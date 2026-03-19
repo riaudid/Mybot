@@ -1,42 +1,150 @@
-const tg = window.Telegram.WebApp;
-tg.expand(); // لجعل الواجهة تفتح بكامل الشاشة
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>1xBit Elite Portal</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --main-gold: #f3ba2f; --bg-dark: #0b0e11; --card-bg: #1e2329; --green: #02c076; --red: #ff4d4d; }
+        body { background: var(--bg-dark); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding-bottom: 100px; }
+        
+        .header { background: var(--card-bg); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--main-gold); position: sticky; top: 0; z-index: 100; }
+        .balance-section { background: linear-gradient(180deg, #2b2f36 0%, #1e2329 100%); margin: 15px; padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #3e444e; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .balance-val { font-size: 28px; color: var(--main-gold); font-weight: bold; }
 
-const diceEmoji = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-let balance = 0.50;
+        /* شبكة الألعاب */
+        .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; }
+        .game-card { background: var(--card-bg); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #2d333a; transition: 0.3s; position: relative; overflow: hidden; }
+        .game-card:active { transform: scale(0.95); border-color: var(--main-gold); }
+        .game-card i { font-size: 30px; color: var(--main-gold); margin-bottom: 10px; display: block; }
+        .game-card span { font-size: 14px; font-weight: bold; }
+        .game-card .badge { position: absolute; top: 5px; right: 5px; background: var(--red); font-size: 10px; padding: 2px 6px; border-radius: 10px; }
 
-function rollDice() {
-    if (balance < 0.1) {
-        alert("رصيدك غير كافٍ!");
-        return;
+        /* منطقة اللعب المنبثقة */
+        .game-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .close-game { position: absolute; top: 20px; left: 20px; font-size: 24px; color: white; }
+        
+        #game-display { font-size: 80px; margin: 20px; }
+        .roll-anim { animation: shake 0.2s infinite; }
+        @keyframes shake { 0% { transform: rotate(0); } 50% { transform: rotate(15deg); } 100% { transform: rotate(-15deg); } }
+
+        .bet-bar { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); padding: 20px; box-sizing: border-box; border-radius: 20px 20px 0 0; border-top: 1px solid #3e444e; }
+        .play-btn { background: var(--main-gold); color: black; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div style="color: var(--main-gold); font-weight: bold;"><i class="fas fa-bolt"></i> 1xELITE</div>
+    <div id="user" style="font-size: 12px;">جاري التحميل...</div>
+</div>
+
+<div class="balance-section">
+    <div style="color: #848e9c; font-size: 13px;">رصيد الحساب المحفظة</div>
+    <div class="balance-val" id="main-balance">$1,250.00</div>
+    <div style="font-size: 11px; color: var(--green); margin-top: 5px;"><i class="fas fa-shield-alt"></i> مؤمن بواسطة SSL</div>
+</div>
+
+<h3 style="margin-right: 20px; font-size: 16px; color: var(--main-gold);">اختر لعبة للبدء:</h3>
+
+<div class="games-grid">
+    <div class="game-card" onclick="openGame('Dice', '🎲')">
+        <i class="fas fa-dice"></i><span>النرد الكلاسيكي</span>
+    </div>
+    <div class="game-card" onclick="openGame('Crash', '🚀')">
+        <div class="badge">Hot</div>
+        <i class="fas fa-rocket"></i><span>كراش (Crash)</span>
+    </div>
+    <div class="game-card" onclick="openGame('Roulette', '🎡')">
+        <i class="fas fa-dharmachakra"></i><span>الروليت الملكي</span>
+    </div>
+    <div class="game-card" onclick="openGame('Slots', '🎰')">
+        <i class="fas fa-slot-machine"></i><span>ماكينة الحظ</span>
+    </div>
+    <div class="game-card" onclick="openGame('Cards', '🃏')">
+        <i class="fas fa-id-card"></i><span>بلوت / ورق</span>
+    </div>
+    <div class="game-card" onclick="openGame('Mines', '💣')">
+        <i class="fas fa-bomb"></i><span>الألغام</span>
+    </div>
+    <div class="game-card" onclick="openGame('Plinko', '⚪')">
+        <i class="fas fa-circle-nodes"></i><span>بلينكو</span>
+    </div>
+    <div class="game-card" onclick="openGame('Coin', '🪙')">
+        <i class="fas fa-coins"></i><span>عملة الحظ</span>
+    </div>
+    <div class="game-card" onclick="openGame('Apple', '🍎')">
+        <i class="fas fa-apple-alt"></i><span>تفاحة الحظ</span>
+    </div>
+    <div class="game-card" onclick="openGame('Limbo', '📉')">
+        <i class="fas fa-chart-line"></i><span>ليمبو (Limbo)</span>
+    </div>
+</div>
+
+<div id="game-ui" class="game-overlay">
+    <i class="fas fa-times close-game" onclick="closeGame()"></i>
+    <h2 id="current-game-name">اللعبة</h2>
+    <div id="game-display">🎲</div>
+    <div id="game-status" style="margin-bottom: 20px; font-weight: bold;">جاهز للرهان؟</div>
+    
+    <div class="bet-bar">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>مبلغ الرهان: $10</span>
+            <span>الربح المتوقع: x2.0</span>
+        </div>
+        <button class="play-btn" onclick="startAction()">ابدأ الرهان الآن</button>
+    </div>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    document.getElementById('user').innerText = tg.initDataUnsafe.user?.first_name || "Guest";
+
+    let balance = 1250.00;
+    let activeGame = "";
+
+    function openGame(name, icon) {
+        activeGame = name;
+        document.getElementById('current-game-name').innerText = name;
+        document.getElementById('game-display').innerText = icon;
+        document.getElementById('game-ui').style.display = 'flex';
+        document.getElementById('game-status').innerText = "جاهز للرهان؟";
     }
 
-    const btn = document.getElementById('play-btn');
-    const dice = document.getElementById('dice-container');
-    const resultDisplay = document.getElementById('result');
+    function closeGame() {
+        document.getElementById('game-ui').style.display = 'none';
+    }
 
-    btn.disabled = true;
-    dice.classList.add('rolling');
-    resultDisplay.innerText = "جاري السحب...";
-    balance -= 0.1;
-    document.getElementById('balance').innerText = "$" + balance.toFixed(2);
-
-    setTimeout(() => {
-        dice.classList.remove('rolling');
-        const randomIndex = Math.floor(Math.random() * 6);
-        dice.innerText = diceEmoji[randomIndex];
+    function startAction() {
+        if(balance < 10) return alert("الرصيد غير كافٍ");
         
-        if (randomIndex >= 4) {
-            let win = 0.25;
-            balance += win;
-            resultDisplay.innerHTML = `<span style="color: lime">🎉 فزت بـ ${win}$!</span>`;
-        } else {
-            resultDisplay.innerHTML = `<span style="color: #ff4444">💀 حظاً أوفر!</span>`;
-        }
+        const display = document.getElementById('game-display');
+        const status = document.getElementById('game-status');
+        
+        balance -= 10;
+        document.getElementById('main-balance').innerText = "$" + balance.toFixed(2);
+        
+        display.classList.add('roll-anim');
+        status.innerText = "جاري الحساب...";
 
-        document.getElementById('balance').innerText = "$" + balance.toFixed(2);
-        btn.disabled = false;
-
-        // ملاحظة هامة: حذفنا tg.sendData لكي لا تنغلق الصفحة
-        // إذا أردت إرسال إشعار للبوت بدون إغلاق، نستخدم طلب API خارجي مستقبلاً
-    }, 1500);
-}
+        setTimeout(() => {
+            display.classList.remove('roll-anim');
+            let win = Math.random() > 0.6; // نسبة فوز 40%
+            
+            if(win) {
+                balance += 20;
+                status.innerText = "مبروك! فزت بـ $20.00";
+                status.style.color = "var(--green)";
+            } else {
+                status.innerText = "حظاً أوفر المرة القادمة";
+                status.style.color = "var(--red)";
+            }
+            document.getElementById('main-balance').innerText = "$" + balance.toFixed(2);
+        }, 1500);
+    }
+</script>
+</body>
+</html>
