@@ -3,147 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>1xBit Elite Portal</title>
+    <title>1xElite Casino Official</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --main-gold: #f3ba2f; --bg-dark: #0b0e11; --card-bg: #1e2329; --green: #02c076; --red: #ff4d4d; }
-        body { background: var(--bg-dark); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding-bottom: 100px; }
+        :root { --gold: #f3ba2f; --dark-bg: #0b0e11; --card-bg: #1e2329; --green: #02c076; --red: #ff4d4d; --text-gray: #848e9c; }
+        body { background: var(--dark-bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 20px; user-select: none; }
         
-        .header { background: var(--card-bg); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--main-gold); position: sticky; top: 0; z-index: 100; }
-        .balance-section { background: linear-gradient(180deg, #2b2f36 0%, #1e2329 100%); margin: 15px; padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #3e444e; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .balance-val { font-size: 28px; color: var(--main-gold); font-weight: bold; }
+        /* Header */
+        .header { background: var(--card-bg); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); sticky; top: 0; z-index: 100; }
+        .logo { color: var(--gold); font-weight: bold; font-size: 18px; letter-spacing: 1px; }
 
-        /* شبكة الألعاب */
-        .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; }
-        .game-card { background: var(--card-bg); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #2d333a; transition: 0.3s; position: relative; overflow: hidden; }
-        .game-card:active { transform: scale(0.95); border-color: var(--main-gold); }
-        .game-card i { font-size: 30px; color: var(--main-gold); margin-bottom: 10px; display: block; }
-        .game-card span { font-size: 14px; font-weight: bold; }
-        .game-card .badge { position: absolute; top: 5px; right: 5px; background: var(--red); font-size: 10px; padding: 2px 6px; border-radius: 10px; }
+        /* Balance Card */
+        .balance-card { background: linear-gradient(180deg, #2b2f36 0%, #1e2329 100%); margin: 15px; padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #3e444e; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        .balance-label { color: var(--text-gray); font-size: 13px; margin-bottom: 5px; }
+        .balance-value { font-size: 30px; font-weight: bold; color: var(--gold); }
 
-        /* منطقة اللعب المنبثقة */
-        .game-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .close-game { position: absolute; top: 20px; left: 20px; font-size: 24px; color: white; }
+        /* Games Grid */
+        .section-title { margin: 20px 20px 10px; font-size: 16px; color: var(--gold); display: flex; align-items: center; gap: 8px; }
+        .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 15px 100px; }
+        .game-card { background: var(--card-bg); border-radius: 12px; padding: 20px 10px; text-align: center; border: 1px solid #2d333a; transition: 0.2s; position: relative; }
+        .game-card:active { transform: scale(0.95); background: #2b2f36; }
+        .game-card i { font-size: 32px; color: var(--gold); margin-bottom: 10px; display: block; }
+        .game-card span { font-size: 13px; font-weight: 600; display: block; }
+        .badge { position: absolute; top: 8px; right: 8px; background: var(--red); font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: bold; text-transform: uppercase; }
+
+        /* Full Screen Overlay for Games */
+        .game-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg); z-index: 1000; display: none; flex-direction: column; }
+        .close-btn { position: absolute; top: 20px; left: 20px; font-size: 24px; color: white; padding: 10px; z-index: 1001; }
+
+        /* Blackjack Table Design */
+        .bj-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .bj-table { width: 100%; max-width: 400px; background: #076324; border: 10px solid #3d2b1f; border-radius: 150px 150px 30px 30px; height: 400px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: space-around; box-shadow: inset 0 0 60px rgba(0,0,0,0.6); }
+        .cards-row { display: flex; gap: 8px; min-height: 90px; }
+        .card { background: white; color: black; width: 50px; height: 75px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; box-shadow: 3px 3px 8px rgba(0,0,0,0.4); animation: dealCard 0.4s ease-out; }
+        @keyframes dealCard { from { transform: translateY(-300px) rotate(45deg); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        #game-display { font-size: 80px; margin: 20px; }
-        .roll-anim { animation: shake 0.2s infinite; }
-        @keyframes shake { 0% { transform: rotate(0); } 50% { transform: rotate(15deg); } 100% { transform: rotate(-15deg); } }
+        .status-msg { text-align: center; font-size: 18px; font-weight: bold; color: var(--gold); margin: 15px 0; min-height: 25px; }
 
-        .bet-bar { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); padding: 20px; box-sizing: border-box; border-radius: 20px 20px 0 0; border-top: 1px solid #3e444e; }
-        .play-btn { background: var(--main-gold); color: black; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 18px; }
+        /* Controls */
+        .controls-bar { background: var(--card-bg); padding: 20px; border-radius: 20px 20px 0 0; border-top: 1px solid #3e444e; }
+        .action-btns { display: flex; gap: 10px; margin-top: 10px; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .btn-gold { background: var(--gold); color: black; }
+        .btn-gray { background: #4e5561; color: white; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div style="color: var(--main-gold); font-weight: bold;"><i class="fas fa-bolt"></i> 1xELITE</div>
-    <div id="user" style="font-size: 12px;">جاري التحميل...</div>
+    <div class="logo"><i class="fas fa-crown"></i> 1xELITE VIP</div>
+    <div id="username" style="font-size: 12px; color: var(--text-gray);">Player</div>
 </div>
 
-<div class="balance-section">
-    <div style="color: #848e9c; font-size: 13px;">رصيد الحساب المحفظة</div>
-    <div class="balance-val" id="main-balance">$1,250.00</div>
-    <div style="font-size: 11px; color: var(--green); margin-top: 5px;"><i class="fas fa-shield-alt"></i> مؤمن بواسطة SSL</div>
+<div class="balance-card">
+    <div class="balance-label">الرصيد المتاح</div>
+    <div class="balance-value" id="main-balance">$1,250.00</div>
 </div>
 
-<h3 style="margin-right: 20px; font-size: 16px; color: var(--main-gold);">اختر لعبة للبدء:</h3>
+<div class="section-title"><i class="fas fa-gamepad"></i> صالة الألعاب الممتازة</div>
 
 <div class="games-grid">
-    <div class="game-card" onclick="openGame('Dice', '🎲')">
-        <i class="fas fa-dice"></i><span>النرد الكلاسيكي</span>
+    <div class="game-card" onclick="openBlackjack()">
+        <div class="badge">PRO</div>
+        <i class="fas fa-spade"></i><span>بلاك جاك 21</span>
     </div>
-    <div class="game-card" onclick="openGame('Crash', '🚀')">
-        <div class="badge">Hot</div>
+    <div class="game-card" onclick="alert('قريباً...')">
+        <div class="badge">HOT</div>
         <i class="fas fa-rocket"></i><span>كراش (Crash)</span>
     </div>
-    <div class="game-card" onclick="openGame('Roulette', '🎡')">
-        <i class="fas fa-dharmachakra"></i><span>الروليت الملكي</span>
-    </div>
-    <div class="game-card" onclick="openGame('Slots', '🎰')">
-        <i class="fas fa-slot-machine"></i><span>ماكينة الحظ</span>
-    </div>
-    <div class="game-card" onclick="openGame('Cards', '🃏')">
-        <i class="fas fa-id-card"></i><span>بلوت / ورق</span>
-    </div>
-    <div class="game-card" onclick="openGame('Mines', '💣')">
-        <i class="fas fa-bomb"></i><span>الألغام</span>
-    </div>
-    <div class="game-card" onclick="openGame('Plinko', '⚪')">
-        <i class="fas fa-circle-nodes"></i><span>بلينكو</span>
-    </div>
-    <div class="game-card" onclick="openGame('Coin', '🪙')">
-        <i class="fas fa-coins"></i><span>عملة الحظ</span>
-    </div>
-    <div class="game-card" onclick="openGame('Apple', '🍎')">
-        <i class="fas fa-apple-alt"></i><span>تفاحة الحظ</span>
-    </div>
-    <div class="game-card" onclick="openGame('Limbo', '📉')">
-        <i class="fas fa-chart-line"></i><span>ليمبو (Limbo)</span>
-    </div>
+    <div class="game-card" onclick="alert('قريباً...')"><i class="fas fa-dice"></i><span>النرد الملكي</span></div>
+    <div class="game-card" onclick="alert('قريباً...')"><i class="fas fa-dharmachakra"></i><span>الروليت</span></div>
+    <div class="game-card" onclick="alert('قريباً...')"><i class="fas fa-coins"></i><span>ماكينة الحظ</span></div>
+    <div class="game-card" onclick="alert('قريباً...')"><i class="fas fa-bomb"></i><span>الألغام</span></div>
+    <div class="game-card" onclick="alert('قريباً...')"><i class="fas fa-clone"></i><span>ورق اللعب</span></div>
+    <div class="game-card" onclick="alert('قريباً...')"><i class="fas fa-stream"></i><span>بلينكو</span></div>
+    <div class="game-card" onclick="alert('قريباً...')"><i class="fas fa-adjust"></i><span>عملة الحظ</span></div>
+    <div class="game-card" onclick="alert('قريباً...')"><i class="fas fa-apple-alt"></i><span>تفاحة الحظ</span></div>
 </div>
 
-<div id="game-ui" class="game-overlay">
-    <i class="fas fa-times close-game" onclick="closeGame()"></i>
-    <h2 id="current-game-name">اللعبة</h2>
-    <div id="game-display">🎲</div>
-    <div id="game-status" style="margin-bottom: 20px; font-weight: bold;">جاهز للرهان؟</div>
-    
-    <div class="bet-bar">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <span>مبلغ الرهان: $10</span>
-            <span>الربح المتوقع: x2.0</span>
+<div id="blackjack-screen" class="game-overlay">
+    <i class="fas fa-arrow-right close-btn" onclick="closeBlackjack()"></i>
+    <div class="bj-container">
+        <div class="bj-table">
+            <div class="side">
+                <div style="font-size: 10px; text-align: center; margin-bottom: 5px; color: #ccc;">DEALER</div>
+                <div id="dealer-hand" class="cards-row"></div>
+            </div>
+            
+            <div id="game-status" class="status-msg">طاولة VIP للبلاك جاك</div>
+
+            <div class="side">
+                <div id="player-hand" class="cards-row"></div>
+                <div style="font-size: 10px; text-align: center; margin-top: 5px; color: #ccc;">YOU (Total: <span id="p-score">0</span>)</div>
+            </div>
         </div>
-        <button class="play-btn" onclick="startAction()">ابدأ الرهان الآن</button>
+    </div>
+
+    <div class="controls-bar">
+        <div id="setup-controls">
+            <button class="btn btn-gold" style="width: 100%" onclick="startDeal()">ابدأ الرهان ($10)</button>
+        </div>
+        <div id="game-controls" class="action-btns" style="display: none;">
+            <button class="btn btn-gold" onclick="hit()">HIT (ورقة)</button>
+            <button class="btn btn-gray" onclick="stand()">STAND (توقف)</button>
+        </div>
     </div>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-    document.getElementById('user').innerText = tg.initDataUnsafe.user?.first_name || "Guest";
+    document.getElementById('username').innerText = tg.initDataUnsafe.user?.first_name || "Guest";
 
     let balance = 1250.00;
-    let activeGame = "";
+    let playerHand = [], dealerHand = [], pScore = 0, dScore = 0;
 
-    function openGame(name, icon) {
-        activeGame = name;
-        document.getElementById('current-game-name').innerText = name;
-        document.getElementById('game-display').innerText = icon;
-        document.getElementById('game-ui').style.display = 'flex';
-        document.getElementById('game-status').innerText = "جاهز للرهان؟";
-    }
-
-    function closeGame() {
-        document.getElementById('game-ui').style.display = 'none';
-    }
-
-    function startAction() {
-        if(balance < 10) return alert("الرصيد غير كافٍ");
-        
-        const display = document.getElementById('game-display');
-        const status = document.getElementById('game-status');
-        
-        balance -= 10;
+    function updateBalance() {
         document.getElementById('main-balance').innerText = "$" + balance.toFixed(2);
-        
-        display.classList.add('roll-anim');
-        status.innerText = "جاري الحساب...";
+    }
 
-        setTimeout(() => {
-            display.classList.remove('roll-anim');
-            let win = Math.random() > 0.6; // نسبة فوز 40%
-            
-            if(win) {
-                balance += 20;
-                status.innerText = "مبروك! فزت بـ $20.00";
-                status.style.color = "var(--green)";
-            } else {
-                status.innerText = "حظاً أوفر المرة القادمة";
-                status.style.color = "var(--red)";
-            }
-            document.getElementById('main-balance').innerText = "$" + balance.toFixed(2);
-        }, 1500);
+    function openBlackjack() { document.getElementById('blackjack-screen').style.display = 'flex'; }
+    function closeBlackjack() { document.getElementById('blackjack-screen').style.display = 'none'; }
+
+    function drawCard() {
+        const deck = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+        const card = deck[Math.floor(Math.random() * deck.length)];
+        let val = parseInt(card);
+        if(['J','Q','K'].includes(card)) val = 10;
+        if(card === 'A') val = 11;
+        return { name: card, value: val };
+    }
+
+    function startDeal() {
+        if(balance < 10) return alert("رصيدك منخفض!");
+        balance -= 10;
+        updateBalance();
+        
+        playerHand = [drawCard(), drawCard()];
+        dealerHand = [drawCard()];
+        
+        document.getElementById('setup-controls').style.display = 'none';
+        document.getElementById('game-controls').style.display = 'flex';
+        document.getElementById('game-status').innerText = "حظاً موفقاً!";
+        render();
+    }
+
+    function render() {
+        const pArea = document.getElementById('player-hand');
+        const dArea = document.getElementById('dealer-hand');
+        pArea.innerHTML = ''; dArea.innerHTML = '';
+        
+        pScore = 0;
+        playerHand.forEach(c => {
+            pArea.innerHTML += `<div class="card">${c.name}</div>`;
+            pScore += c.value;
+        });
+        
+        dScore = 0;
+        dealerHand.forEach(c => {
+            dArea.innerHTML += `<div class="card">${c.name}</div>`;
+            dScore += c.value;
+        });
+
+        document.getElementById('p-score').innerText = pScore;
+        if(pScore > 21) finish("لقد تجاوزت 21! خسرت.");
+    }
+
+    function hit() {
+        playerHand.push(drawCard());
+        render();
+    }
+
+    function stand() {
+        while(dScore < 17) {
+            dealerHand.push(drawCard());
+            dScore += dealerHand[dealerHand.length-1].value;
+        }
+        render();
+        
+        if(dScore > 21 || pScore > dScore) {
+            balance += 20;
+            finish("🎉 مبروك! فزت بـ $20");
+        } else if (pScore === dScore) {
+            balance += 10;
+            finish("تعادل! تم إعادة الرهان");
+        } else {
+            finish("خسرت! الموزع فاز هذه المرة");
+        }
+    }
+
+    function finish(msg) {
+        document.getElementById('game-status').innerText = msg;
+        document.getElementById('game-controls').style.display = 'none';
+        document.getElementById('setup-controls').style.display = 'block';
+        updateBalance();
     }
 </script>
 </body>
