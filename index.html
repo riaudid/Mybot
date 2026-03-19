@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBit Lite Clone</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --bg: #0f1118; --card: #1a1d29; --gold: #f3ba2f; --white: #ffffff; }
+        body { background-color: var(--bg); color: var(--white); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 15px; direction: rtl; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #2d313f; }
+        .balance-card { background: var(--card); padding: 20px; border-radius: 15px; margin-top: 20px; border: 1px solid #2d313f; text-align: center; }
+        .balance-amount { font-size: 28px; color: var(--gold); font-weight: bold; margin: 10px 0; }
+        .games-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+        .game-item { background: var(--card); padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; border: 1px solid transparent; }
+        .game-item:active { border-color: var(--gold); transform: scale(0.95); }
+        .btn-main { background: var(--gold); color: black; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span>👤 المستخدم</span>
+        <span style="color: var(--gold);">1xBit Lite</span>
+    </div>
+
+    <div class="balance-card">
+        <div>رصيدك الحالي</div>
+        <div class="balance-amount" id="user-balance">$0.50</div>
+        <button class="btn-main" onclick="deposit()">➕ إيداع سريع</button>
+    </div>
+
+    <h3 style="margin-top: 30px;">🎮 الألعاب المتاحة</h3>
+    <div class="games-grid">
+        <div class="game-item" onclick="playGame('Dice')">🎲 <br> حجر النرد</div>
+        <div class="game-item" onclick="playGame('Crash')">📈 <br> كراش</div>
+        <div class="game-item" onclick="playGame('Slots')">🎰 <br> السلوتس</div>
+        <div class="game-item" onclick="playGame('Mines')">💣 <br> الألغام</div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function playGame(gameName) {
+            // إرسال طلب اللعب للبوت
+            tg.sendData(JSON.stringify({
+                "action": "bet",
+                "game": gameName,
+                "amount": 0.1
+            }));
+        }
+
+        function deposit() {
+            tg.showAlert("سيتم تحويلك لبوابة الدفع قريباً...");
+        }
+    </script>
+</body>
+</html>
