@@ -3,148 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>1xElite Full Casino</title>
+    <title>1xElite Ultimate Platform</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --gold: #f3ba2f; --dark: #0b0e11; --card: #1e2329; --green: #02c076; --red: #ff4d4d; }
-        body { background: var(--dark); color: white; font-family: sans-serif; margin: 0; overflow-x: hidden; }
-        .header { background: var(--card); padding: 15px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-        .balance-card { background: linear-gradient(180deg, #2b2f36, #1e2329); margin: 15px; padding: 20px; border-radius: 15px; border: 1px solid #3e444e; text-align: center; }
-        .balance-val { font-size: 30px; color: var(--gold); font-weight: bold; }
+        body { background: var(--dark); color: white; font-family: sans-serif; margin: 0; padding-bottom: 30px; user-select: none; }
         
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
-        .game-item { background: var(--card); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #2d333a; cursor: pointer; }
-        .game-item i { font-size: 35px; color: var(--gold); margin-bottom: 10px; display: block; }
+        /* Header & Balance */
+        .header { background: var(--card); padding: 15px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; sticky; top: 0; z-index: 100; }
+        .balance-box { background: linear-gradient(180deg, #2b2f36, #1e2329); margin: 15px; padding: 20px; border-radius: 15px; border: 1px solid #3e444e; text-align: center; }
+        .balance-val { font-size: 32px; color: var(--gold); font-weight: bold; }
 
-        /* Overlay System */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark); z-index: 1000; display: none; flex-direction: column; align-items: center; padding-top: 60px; }
-        .close-btn { position: absolute; top: 20px; left: 20px; font-size: 24px; color: white; }
-        .game-container { width: 90%; background: var(--card); border-radius: 20px; padding: 20px; text-align: center; }
+        /* Grid - 11 Games */
+        .section-title { padding: 0 15px; color: var(--gold); font-size: 14px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
+        .game-item { background: var(--card); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #2d333a; position: relative; }
+        .game-item i { font-size: 32px; color: var(--gold); margin-bottom: 10px; display: block; }
+        .badge { position: absolute; top: 8px; right: 8px; background: var(--red); font-size: 9px; padding: 2px 5px; border-radius: 5px; }
+
+        /* Pop-up Overlay for Games */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark); z-index: 1000; display: none; flex-direction: column; align-items: center; padding-top: 40px; }
+        .close-area { position: absolute; top: 20px; left: 20px; font-size: 20px; }
+        .game-screen { width: 90%; max-width: 400px; background: var(--card); border-radius: 20px; padding: 20px; text-align: center; border: 1px solid #3e444e; }
         
-        /* Mines Style */
-        .mines-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 20px; }
-        .mine-tile { background: #2b2f36; height: 60px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        
-        .btn-main { background: var(--gold); color: black; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; margin-top: 20px; }
+        /* Specialized Game Styles */
+        .mines-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 20px; }
+        .tile { background: #2b2f36; height: 60px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .btn-play { background: var(--gold); color: black; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; margin-top: 20px; font-size: 16px; }
+        .crash-num { font-size: 60px; color: var(--gold); margin: 30px 0; font-weight: bold; }
     </style>
 </head>
 <body>
-
-<div class="header">
-    <span style="color:var(--gold)">1xELITE ⚡</span>
-    <span id="user">Guest</span>
-</div>
-
-<div class="balance-card">
-    <div style="font-size:12px; color:#848e9c">الرصيد المتوفر</div>
-    <div class="balance-val" id="main-balance">$0.00</div>
-</div>
-
-<div class="grid">
-    <div class="game-item" onclick="showGame('mines')"><i class="fas fa-bomb"></i><span>الألغام</span></div>
-    <div class="game-item" onclick="showGame('blackjack')"><i class="fas fa-spade"></i><span>بلاك جاك</span></div>
-    <div class="game-item" onclick="showGame('dice')"><i class="fas fa-dice"></i><span>النرد</span></div>
-    <div class="game-item" onclick="showGame('crash')"><i class="fas fa-rocket"></i><span>كراش</span></div>
-</div>
-
-<div id="game-mines" class="overlay">
-    <i class="fas fa-times close-btn" onclick="hideAll()"></i>
-    <div class="game-container">
-        <h3>لعبة الألغام 💣</h3>
-        <div id="mines-status">اختر المربعات وتجنب القنابل</div>
-        <div class="mines-grid" id="m-grid"></div>
-        <button class="btn-main" id="m-start" onclick="initMines()">بدء الرهان ($10)</button>
-    </div>
-</div>
-
-<div id="game-blackjack" class="overlay">
-    <i class="fas fa-times close-btn" onclick="hideAll()"></i>
-    <div class="game-container" style="background:#076324; border: 5px solid #3d2b1f;">
-        <h3>بلاك جاك 🃏</h3>
-        <div id="bj-dealer" style="margin-bottom:20px">الموزع: ?</div>
-        <div id="bj-msg" style="color:var(--gold); font-weight:bold"></div>
-        <div id="bj-player" style="margin-top:20px">أنت: 0</div>
-        <div id="bj-btns" style="display:none; gap:10px; margin-top:20px">
-            <button class="btn-main" onclick="bjHit()" style="flex:1">طلب ورقة</button>
-            <button class="btn-main" onclick="bjStand()" style="flex:1; background:#4e5561; color:white">توقف</button>
-        </div>
-        <button class="btn-main" id="bj-start" onclick="initBJ()">بدء الرهان ($10)</button>
-    </div>
-</div>
-
-<script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-    const urlParams = new URLSearchParams(window.location.search);
-    let balance = parseFloat(urlParams.get('balance')) || 500.00;
-    
-    function updateB() { 
-        document.getElementById('main-balance').innerText = "$" + balance.toFixed(2); 
-    }
-    updateB();
-
-    function showGame(id) { document.getElementById('game-'+id).style.display = 'flex'; }
-    function hideAll() { 
-        document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); 
-    }
-
-    // --- LOGIC: MINES ---
-    let mines = [];
-    function initMines() {
-        if(balance < 10) return;
-        balance -= 10; updateB();
-        mines = Array(16).fill(false);
-        for(let i=0; i<3; i++) { // 3 قنابل
-            let r = Math.floor(Math.random()*16);
-            mines[r] = true;
-        }
-        const grid = document.getElementById('m-grid');
-        grid.innerHTML = '';
-        for(let i=0; i<16; i++) {
-            grid.innerHTML += `<div class="mine-tile" onclick="checkMine(this, ${i})">?</div>`;
-        }
-        document.getElementById('m-start').style.display = 'none';
-    }
-    function checkMine(el, i) {
-        if(mines[i]) {
-            el.innerHTML = '💣'; el.style.background = 'red';
-            alert('انفجرت القنبلة! خسرت');
-            document.getElementById('m-start').style.display = 'block';
-        } else {
-            el.innerHTML = '💎'; el.style.background = 'green';
-            balance += 5; updateB();
-        }
-    }
-
-    // --- LOGIC: BLACKJACK ---
-    let pSum = 0, dSum = 0;
-    function initBJ() {
-        if(balance < 10) return;
-        balance -= 10; updateB();
-        pSum = Math.floor(Math.random()*10)+10;
-        dSum = Math.floor(Math.random()*10)+5;
-        document.getElementById('bj-player').innerText = "أنت: " + pSum;
-        document.getElementById('bj-dealer').innerText = "الموزع: " + dSum;
-        document.getElementById('bj-btns').style.display = 'flex';
-          document.getElementById('bj-start').style.display = 'none';
-    }
-    function bjHit() {
-        pSum += Math.floor(Math.random()*10)+1;
-        document.getElementById('bj-player').innerText = "أنت: " + pSum;
-        if(pSum > 21) bjEnd("خسرت! تجاوزت 21");
-    }
-    function bjStand() {
-        while(dSum < 17) dSum += Math.floor(Math.random()*10)+1;
-        if(dSum > 21 || pSum > dSum) { balance += 20; bjEnd("مبروك! فزت بـ $20"); }
-        else { bjEnd("خسر الموزع فاز"); }
-    }
-    function bjEnd(m) {
-        alert(m); updateB();
-        document.getElementById('bj-btns').style.display = 'none';
-        document.getElementById('bj-start').style.display = 'block';
-    }
-</script>
-</body>
-</html>.
-            
