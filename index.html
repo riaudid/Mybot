@@ -35,3 +35,48 @@
     </style>
 </head>
 <body>
+<div class="header">
+    <span style="color:var(--gold); font-weight:bold">1xELITE ⚡</span>
+    <span id="top-user">Guest</span>
+</div>
+
+<div class="balance-box">
+    <div style="color:#848e9c; font-size:12px">الرصيد المتوفر</div>
+    <div class="balance-val" id="user-balance">$0.00</div>
+</div>
+
+<div class="section-title">اختر لعبة للبدء:</div>
+
+<div class="grid">
+    <div class="game-item" onclick="openGame('mines')"><div class="badge">Hot</div><i class="fas fa-bomb"></i> الألغام</div>
+    <div class="game-item" onclick="openGame('crash')"><div class="badge">New</div><i class="fas fa-rocket"></i> كراش</div>
+    <div class="game-item" onclick="openGame('bj')"><i class="fas fa-spade"></i> بلاك جاك</div>
+    <div class="game-item" onclick="alert('قريباً')"><i class="fas fa-dice"></i> النرد الكلاسيكي</div>
+    <div class="game-item" onclick="alert('قريباً')"><i class="fas fa-dharmachakra"></i> الروليت الملكي</div>
+    <div class="game-item" onclick="alert('قريباً')"><i class="fas fa-coins"></i> ماكينة الحظ</div>
+    <div class="game-item" onclick="alert('قريباً')"><i class="fas fa-clone"></i> بلوت / ورق</div>
+    <div class="game-item" onclick="alert('قريباً')"><i class="fas fa-stream"></i> بلينكو</div>
+    <div class="game-item" onclick="alert('قريباً')"><i class="fas fa-adjust"></i> عملة الحظ</div>
+    <div class="game-item" onclick="alert('قريباً')"><i class="fas fa-apple-alt"></i> تفاحة الحظ</div>
+    <div class="game-item" onclick="alert('قريباً')"><i class="fas fa-arrow-trend-up"></i> ليمبو</div>
+</div>
+
+<div id="screen-mines" class="overlay">
+    <div class="close-area" onclick="closeAll()"><i class="fas fa-chevron-left"></i> رجوع</div>
+    <div class="game-screen">
+        <h3>لعبة الألغام 💣</h3>
+        <div id="m-status" style="font-size:12px; color:var(--gold)">ابحث عن الجواهر وتجنب القنابل</div>
+        <div id="m-grid" class="mines-board"></div>
+        <button id="m-start-btn" class="btn-play" onclick="setupMines()">بدء الرهان ($10)</button>
+    </div>
+</div>
+
+<div id="screen-crash" class="overlay">
+    <div class="close-area" onclick="closeAll()"><i class="fas fa-chevron-left"></i> رجوع</div>
+    <div class="game-screen">
+        <h3>كراش (الصاروخ) 🚀</h3>
+        <div id="c-multiplier" class="crash-num">1.00x</div>
+        <button id="c-cashout" class="btn-play" style="display:none; background:var(--green)" onclick="crashCashout()">سحب الأرباح</button>
+        <button id="c-start" class="btn-play" onclick="startCrash()">انطلاق ($10)</button>
+    </div>
+</div>
