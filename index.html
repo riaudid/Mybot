@@ -80,3 +80,102 @@
         <button id="c-start" class="btn-play" onclick="startCrash()">انطلاق ($10)</button>
     </div>
 </div>
+<div id="screen-bj" class="overlay">
+    <div class="close-area" onclick="closeAll()"><i class="fas fa-chevron-left"></i> رجوع</div>
+    <div class="game-screen" style="background:#076324">
+        <h3>بلاك جاك 21 🃏</h3>
+        <div id="bj-info" style="margin:20px 0">الموزع: ? | أنت: 0</div>
+        <div id="bj-ctrl" style="display:none; gap:10px">
+            <button class="btn-play" onclick="bjHit()">Hit</button>
+            <button class="btn-play" style="background:#4e5561; color:white" onclick="bjStand()">Stand</button>
+        </div>
+        <button id="bj-start" class="btn-play" onclick="startBJ()">رهان $10</button>
+    </div>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    const urlParams = new URLSearchParams(window.location.search);
+    let balance = parseFloat(urlParams.get('balance')) || 500.00;
+
+    function syncB() { 
+        document.getElementById('user-balance').innerText = "$" + balance.toFixed(2); 
+    }
+    syncB();
+
+    function openGame(id) { document.getElementById('screen-'+id).style.display = 'flex'; }
+    function closeAll() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
+
+    // --- LOGIC: MINES ---
+    let bombPos = -1;
+    function setupMines() {
+        if(balance < 10) return; balance -= 10; syncB();
+        bombPos = Math.floor(Math.random()*16);
+        const grid = document.getElementById('m-grid'); grid.innerHTML = '';
+        for(let i=0; i<16; i++) {
+            grid.innerHTML += `<div class="tile" onclick="playMine(this, ${i})">?</div>`;
+        }
+        document.getElementById('m-start-btn').style.display = 'none';
+    }
+    function playMine(el, i) {
+        if(i === bombPos) {
+            el.innerHTML = '💣'; el.style.background = 'red';
+            alert('خسرت!'); document.getElementById('m-start-btn').style.display = 'block';
+        } else {
+            el.innerHTML = '💎'; el.style.background = 'green';
+            balance += 5; syncB();
+        }
+    }
+
+    // --- LOGIC: CRASH ---
+        let cInt; let cMult = 1.0;
+    function startCrash() {
+        if(balance < 10) return; balance -= 10; syncB();
+        cMult = 1.0;
+        document.getElementById('c-start').style.display = 'none';
+        document.getElementById('c-cashout').style.display = 'block';
+        cInt = setInterval(() => {
+            cMult += 0.04;
+            document.getElementById('c-multiplier').innerText = cMult.toFixed(2) + "x";
+            if(Math.random() < 0.03) {
+                clearInterval(cInt); alert("انفجر الصاروخ!");
+                resetCrash();
+            }
+        }, 150);
+    }
+    function crashCashout() {
+        clearInterval(cInt); balance += (10 * cMult); syncB();
+        alert("ربحت $" + (10*cMult).toFixed(2)); resetCrash();
+    }
+    function resetCrash() {
+        document.getElementById('c-start').style.display = 'block';
+        document.getElementById('c-cashout').style.display = 'none';
+    }
+
+    // --- LOGIC: BLACKJACK ---
+    let pScore = 0;
+    function startBJ() {
+        if(balance < 10) return; balance -= 10; syncB();
+        pScore = Math.floor(Math.random()*12)+10;
+        document.getElementById('bj-info').innerText = "الموزع: ? | أنت: " + pScore;
+        document.getElementById('bj-start').style.display = 'none';
+        document.getElementById('bj-ctrl').style.display = 'flex';
+    }
+    function bjHit() {
+        pScore += Math.floor(Math.random()*10)+1;
+        document.getElementById('bj-info').innerText = "الموزع: ? | أنت: " + pScore;
+        if(pScore > 21) bjEnd("تجاوزت الـ 21! خسرت.");
+    }
+    function bjStand() {
+        let dScore = Math.floor(Math.random()*6)+17;
+        if(dScore > 21 || pScore > dScore) { balance += 20; bjEnd("فزت بـ $20!"); }
+        else { bjEnd("الموزع فاز!"); }
+    }
+    function bjEnd(m) { 
+        alert(m); syncB();
+        document.getElementById('bj-start').style.display = 'block';
+        document.getElementById('bj-ctrl').style.display = 'none';
+    }
+</script>
+</body>
+</html>
