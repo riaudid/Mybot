@@ -1,88 +1,42 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1xBit Casino</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root { --bg: #0f1118; --card: #1a1d29; --gold: #f3ba2f; }
-        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; padding: 20px; overflow: hidden; }
+const tg = window.Telegram.WebApp;
+tg.expand(); // لجعل الواجهة تفتح بكامل الشاشة
+
+const diceEmoji = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+let balance = 0.50;
+
+function rollDice() {
+    if (balance < 0.1) {
+        alert("رصيدك غير كافٍ!");
+        return;
+    }
+
+    const btn = document.getElementById('play-btn');
+    const dice = document.getElementById('dice-container');
+    const resultDisplay = document.getElementById('result');
+
+    btn.disabled = true;
+    dice.classList.add('rolling');
+    resultDisplay.innerText = "جاري السحب...";
+    balance -= 0.1;
+    document.getElementById('balance').innerText = "$" + balance.toFixed(2);
+
+    setTimeout(() => {
+        dice.classList.remove('rolling');
+        const randomIndex = Math.floor(Math.random() * 6);
+        dice.innerText = diceEmoji[randomIndex];
         
-        .balance-box { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #2d313f; margin-bottom: 20px; }
-        .balance-amount { font-size: 24px; color: var(--gold); font-weight: bold; }
-
-        /* تصميم النرد وأنيميشن الحركة */
-        #dice-container { font-size: 80px; margin: 30px 0; transition: transform 0.5s ease; }
-        .rolling { animation: shake 0.2s infinite; }
-        @keyframes shake {
-            0% { transform: rotate(0deg); }
-            25% { transform: rotate(10deg); }
-            50% { transform: rotate(0deg); }
-            75% { transform: rotate(-10deg); }
-            100% { transform: rotate(0deg); }
+        if (randomIndex >= 4) {
+            let win = 0.25;
+            balance += win;
+            resultDisplay.innerHTML = `<span style="color: lime">🎉 فزت بـ ${win}$!</span>`;
+        } else {
+            resultDisplay.innerHTML = `<span style="color: #ff4444">💀 حظاً أوفر!</span>`;
         }
 
-        .btn-play { background: var(--gold); color: black; border: none; padding: 15px 40px; border-radius: 10px; font-weight: bold; font-size: 18px; width: 100%; cursor: pointer; }
-        .result-text { margin-top: 20px; font-size: 20px; min-height: 30px; }
-    </style>
-</head>
-<body>
-    <div class="balance-box">
-        <div>الرصيد المتوفر</div>
-        <div class="balance-amount" id="balance">$0.50</div>
-    </div>
+        document.getElementById('balance').innerText = "$" + balance.toFixed(2);
+        btn.disabled = false;
 
-    <div id="dice-container">🎲</div>
-    
-    <div class="result-text" id="result">اضغط للعب (0.1$)</div>
-
-    <button class="btn-play" id="play-btn" onclick="rollDice()">إرمِ النرد!</button>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        const diceEmoji = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-        let balance = 0.50;
-
-        function rollDice() {
-            if (balance < 0.1) {
-                alert("رصيدك غير كافٍ!");
-                return;
-            }
-
-            const btn = document.getElementById('play-btn');
-            const dice = document.getElementById('dice-container');
-            const resultDisplay = document.getElementById('result');
-
-            // بدء الحركة
-            btn.disabled = true;
-            dice.classList.add('rolling');
-            resultDisplay.innerText = "جاري السحب...";
-            balance -= 0.1;
-            document.getElementById('balance').innerText = "$" + balance.toFixed(2);
-
-            // بعد 1.5 ثانية تظهر النتيجة
-            setTimeout(() => {
-                dice.classList.remove('rolling');
-                const randomIndex = Math.floor(Math.random() * 6);
-                dice.innerText = diceEmoji[randomIndex];
-                
-                // إذا كان النرد 5 أو 6 يعتبر فوز (كمثال)
-                if (randomIndex >= 4) {
-                    let win = 0.25;
-                    balance += win;
-                    resultDisplay.innerHTML = `<span style="color: lime">🎉 فزت بـ ${win}$!</span>`;
-                } else {
-                    resultDisplay.innerHTML = `<span style="color: #ff4444">💀 حظاً أوفر!</span>`;
-                }
-
-                document.getElementById('balance').innerText = "$" + balance.toFixed(2);
-                btn.disabled = false;
-
-                // إرسال النتيجة للبوت في الخلفية دون إغلاق الويب آب
-                tg.sendData(JSON.stringify({game: "Dice", result: randomIndex + 1, new_balance: balance}));
-            }, 1500);
-        }
-    </script>
-</body>
-</html>
+        // ملاحظة هامة: حذفنا tg.sendData لكي لا تنغلق الصفحة
+        // إذا أردت إرسال إشعار للبوت بدون إغلاق، نستخدم طلب API خارجي مستقبلاً
+    }, 1500);
+}
