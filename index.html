@@ -127,5 +127,24 @@
         document.getElementById('bj-player').innerText = "أنت: " + pSum;
         document.getElementById('bj-dealer').innerText = "الموزع: " + dSum;
         document.getElementById('bj-btns').style.display = 'flex';
-        document.
+          document.getElementById('bj-start').style.display = 'none';
+    }
+    function bjHit() {
+        pSum += Math.floor(Math.random()*10)+1;
+        document.getElementById('bj-player').innerText = "أنت: " + pSum;
+        if(pSum > 21) bjEnd("خسرت! تجاوزت 21");
+    }
+    function bjStand() {
+        while(dSum < 17) dSum += Math.floor(Math.random()*10)+1;
+        if(dSum > 21 || pSum > dSum) { balance += 20; bjEnd("مبروك! فزت بـ $20"); }
+        else { bjEnd("خسر الموزع فاز"); }
+    }
+    function bjEnd(m) {
+        alert(m); updateB();
+        document.getElementById('bj-btns').style.display = 'none';
+        document.getElementById('bj-start').style.display = 'block';
+    }
+</script>
+</body>
+</html>.
             
