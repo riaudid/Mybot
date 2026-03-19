@@ -93,7 +93,23 @@
     </div>
 </div>
 
-<script>
+<scriptfunction saveBalanceToBot() {
+    const data = JSON.stringify({ new_balance: balance });
+    tg.sendData(data); // إرسال البيانات إلى البوت
+}
+
+// استدعاء هذه الوظيفة عند الفوز في أي لعبة
+// مثال في نهاية لعبة الكراش:
+function crashCashout() {
+    clearInterval(cInt);
+    balance += (10 * cMult);
+    syncB();
+    saveBalanceToBot(); // حفظ الرصيد الجديد في قاعدة البيانات
+    alert("تم حفظ أرباحك!");
+    resetCrash();
+}
+    >
+    
     const tg = window.Telegram.WebApp;
     const urlParams = new URLSearchParams(window.location.search);
     let balance = parseFloat(urlParams.get('balance')) || 500.00;
